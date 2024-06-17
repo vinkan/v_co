@@ -1,0 +1,22 @@
+{
+  "name": "v_co",
+  "version": "1.0.0",
+  "description": "Copy everything",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf dist &&  rollup -c rollup.config.mjs"
+  },
+  "exports": {
+    "import": "./dist/index-module.js",
+    "require": "./dist/index-require.cjs"
+  },
+  "author": "Vinca",
+  "license": "ISC",
+  "keywords": [],
+  "devDependencies": {
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rimraf": "^5.0.7"
+  }
+}
