@@ -9,10 +9,10 @@ const quality = 1
 
 // prompt maps
 const promptMap = new Map([
-    [0, 'Unable to copy to clipboard:'], // 无法复制到剪贴板:
+    [0, 'Unable to copy to clipboard!'], // 无法复制到剪贴板
     [1, 'Copy successfully to Clipboard!'], // 成功复制到剪贴板!
     [2, "Can't get picture data!"], // 无法获取图片数据!
-    [3, "Failed to load picture:"], // 加载图片失败:
+    [3, "Failed to load picture!"], // 加载图片失败
 ])
 
 // tags
@@ -30,12 +30,20 @@ class v_co {
 
     // Copy text
     async txt(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            console.log(promptMap.get(1));
-        } catch (err) {
-            console.error(promptMap.get(0), err);
-        }
+        return new Promise(async (resolve, reject) => {
+            if (text !== undefined && text !== null && text !== '') {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    console.log(promptMap.get(1));
+                    resolve(promptMap.get(1))
+                } catch (err) {
+                    console.error(promptMap.get(0), err);
+                    reject(promptMap.get(0), err)
+                }
+            } else {
+                reject(promptMap.get(0))
+            }
+        })
     }
 
     // Copy image
@@ -68,10 +76,10 @@ class v_co {
                             })
                         ]);
                         console.log(promptMap.get(1));
-                        resolve();
+                        resolve(promptMap.get(1));
                     } catch (err) {
                         console.error(promptMap.get(0), err);
-                        reject(err);
+                        reject(promptMap.get(0), err);
                     }
 
                 }, this.type, this.quality);
@@ -88,38 +96,41 @@ class v_co {
 
     // Multigraph replication
     async multi(id) {
-        document.addEventListener("DOMContentLoaded", () => {
-            const article = document.getElementById(id);
+        return new Promise(async (resolve, reject) => {
+            document.addEventListener("DOMContentLoaded", () => {
+                const article = document.getElementById(id);
+                // 添加点击事件委托
+                article.addEventListener("click", async (event) => {
+                    const clickedElement = event.target;
+                    // 确保点击的是图片元素
+                    if (clickedElement.tagName === tags.get(0)) {
+                        try {
+                            const imageUrl = clickedElement.src;
 
-            // 添加点击事件委托
-            article.addEventListener("click", async (event) => {
-                const clickedElement = event.target;
-                // 确保点击的是图片元素
-                if (clickedElement.tagName === tags.get(0)) {
-                    try {
-                        const imageUrl = clickedElement.src;
+                            // 获取图片 Blob 数据
+                            const response = await fetch(imageUrl);
+                            const blob = await response.blob();
 
-                        // 获取图片 Blob 数据
-                        const response = await fetch(imageUrl);
-                        const blob = await response.blob();
+                            // 创建一个新的 Blob 对象，将类型设为 'image/png'
+                            const pngBlob = new Blob([blob], { type: type });
 
-                        // 创建一个新的 Blob 对象，将类型设为 'image/png'
-                        const pngBlob = new Blob([blob], { type: type });
+                            // 使用 Clipboard API 将图片写入剪贴板
+                            await navigator.clipboard.write([
+                                new ClipboardItem({
+                                    'image/png': pngBlob,
+                                }),
+                            ]);
 
-                        // 使用 Clipboard API 将图片写入剪贴板
-                        await navigator.clipboard.write([
-                            new ClipboardItem({
-                                'image/png': pngBlob,
-                            }),
-                        ]);
-
-                        console.log(promptMap.get(1));
-                    } catch (error) {
-                        console.error(promptMap.get(0), error);
+                            console.log(promptMap.get(1));
+                            resolve(promptMap.get(1))
+                        } catch (error) {
+                            console.error(promptMap.get(0), error);
+                            reject(promptMap.get(0), error)
+                        }
                     }
-                }
+                });
             });
-        });
+        })
     }
 
 }
