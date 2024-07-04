@@ -4,7 +4,7 @@
 // 指定图片格式，默认格式（未指定或不支持）为 image/png
 const type = 'image/png'
 
-// 当请求图片格式为 image/jpeg 或者 image/webp 时用来指定图片展示质量
+// 当请求图片格式为 image/jpeg 或者 image/webp 时用来指定图片展示质量0 ~ 1
 const quality = 1
 
 // prompt maps
